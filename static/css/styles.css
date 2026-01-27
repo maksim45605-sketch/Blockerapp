@@ -417,14 +417,14 @@ h1 {
     box-shadow: 0 5px 15px rgba(0,0,0,0.2);
 }
 
-.btn-take:hover { background: #ffd633; }
+.btn-take:hover { background: #008000; }
 
 .btn-again {
-    background: rgba(255,255,255,0.15);
+    background: rgba(0, 128, 0, 1);
     color: white;
 }
 
-.btn-again:hover { background: rgba(255,255,255,0.25); }
+.btn-again:hover { background: rgba(0, 128, 0, 1); }
 
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(10px); }

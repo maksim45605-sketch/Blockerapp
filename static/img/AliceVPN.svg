@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="50px" height="50px" viewBox="0 0 50 50" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 46.2 (44496) - http://www.bohemiancoding.com/sketch -->
+    <title>alise_logo</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <linearGradient x1="0%" y1="100%" x2="100%" y2="0%" id="linearGradient-1">
+            <stop stop-color="#C926FF" offset="0%"></stop>
+            <stop stop-color="#4A26FF" offset="100%"></stop>
+        </linearGradient>
+    </defs>
+    <g id="Page-2" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Desktop" transform="translate(-30.000000, -28.000000)" fill-rule="nonzero" fill="url(#linearGradient-1)">
+            <g id="alise_logo" transform="translate(30.000000, 28.000000)">
+                <path d="M25,50 C11.1928812,50 0,38.8071187 0,25 C0,11.1928812 11.1928812,0 25,0 C38.8071187,0 50,11.1928812 50,25 C50,38.8071187 38.8071187,50 25,50 Z M13.5524259,33.0686816 C15.3471497,34.8545777 20.1277994,35.9269698 25,35.9457672 C29.8720518,35.9269698 34.6528503,34.8545777 36.4475741,33.0686816 C40.9065687,28.6316195 30.0675735,11.6324527 25.0055778,11.6077349 C19.9324265,11.6324527 9.09343125,28.6316195 13.5524259,33.0686816 Z" id="alisa-symbol"></path>
+            </g>
+        </g>
+    </g>
+</svg>

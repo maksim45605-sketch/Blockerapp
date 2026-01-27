@@ -1,0 +1,86 @@
+<!DOCTYPE html><html lang="ru"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>РКН Рулетка</title>
+    <!-- Подключаем Google Fonts для основного сайта -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="static/css/styles.css">
+    <script src="static/js/script.js" defer=""></script>
+</head>
+<body>
+
+    <!-- Header -->
+    <header>
+        <div class="header-inner">
+            <!-- Логотип слева -->
+            <img src="static/img/RKN.png" alt="Логотип РКН" class="rkn-logo">
+
+            <!-- Текст справа от логотипа -->
+            <div class="header-text">
+                <div class="rkn-title">Роскомнадзор</div>
+                <div class="rkn-subtitle">Федеральная служба по надзору в сфере связи</div>
+            </div>
+        </div>
+    </header>
+    <!-- Main -->
+    <main>
+        <h1>ЧТО ЗАПРЕТИМ СЕГОДНЯ?</h1>
+
+        <div class="roulette-container">
+            <div class="pointer"></div>
+            <div class="roulette-track" id="track">
+                <!-- Скрипт заполнит это при нажатии -->
+            </div>
+        </div>
+
+        <button class="spin-btn" id="spinBtn">КРУТИТЬ</button>
+    </main>
+
+    <!-- Footer Ad -->
+    <a href="https://rilliat.ru" target="_blank" class="ad-banner">
+        <div class="ad-content">
+            <img src="static/img/AliceVPN.svg" alt="Logo" class="ad-logo-img">
+            <div>
+                <div class="ad-text-main">
+                    <span class="font-alice">АЛИСА</span> <span class="font-vpn">VPN</span>
+                </div>
+                <div class="ad-text-sub">загрузится всё</div>
+            </div>
+        </div>
+        <div class="ad-arrow">➜</div>
+    </a>
+
+    <!-- Modal -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal-window" id="modalWindow">
+            
+            <!-- Step 1: Action -->
+            <div id="actionStep">
+                <img src="" alt="Service Logo" class="modal-img" id="modalImg">
+                <div class="modal-title" id="modalTitle">Service</div>
+                
+                <div class="action-buttons">
+                    <button class="rkn-btn btn-restrict" onclick="applyPunishment('ОГРАНИЧЕНО')">Ограничить</button>
+                    <button class="rkn-btn btn-slow" onclick="applyPunishment('ЗАМЕДЛЕНО')">Замедлить</button>
+                    <button class="rkn-btn btn-ban" onclick="applyPunishment('ЗАБАНЕНО')">ЗАБАНИТЬ</button>
+                </div>
+            </div>
+
+            <!-- Step 2: Result -->
+            <div id="resultStep" class="result-view">
+                <div class="result-status" id="statusText">ЗАБАНЕНО</div>
+                <div class="good-job">Сегодня вы хорошо потрудились</div>
+                <div class="salary" id="salaryAmount">0 ₽</div>
+                <div class="salary-label">ваша зарплата на сегодня</div>
+                
+                <button class="result-btn btn-take" onclick="takeMoney()">Забрать деньги</button>
+                <button class="result-btn btn-again" onclick="resetRoulette()">Крутить ещё</button>
+            </div>
+
+        </div>
+    </div>
+
+</body></html>

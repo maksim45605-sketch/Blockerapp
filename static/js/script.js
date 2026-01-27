@@ -2,6 +2,7 @@
 const servicesData = [
     { name: 'ChatGPT', img: 'static/img/ChatGPT.png' },
     { name: 'Roblox', img: 'static/img/roblox.png' },
+    { name: 'Standoff2', img: 'static/img/standoff2.png' },
     { name: 'CapCut', img: 'static/img/CapCut.png' },
     { name: 'YouTube', img: 'static/img/YouTube.png' },
     { name: 'Instagram', img: 'static/img/Instagram.png' },

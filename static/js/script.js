@@ -1,6 +1,7 @@
 // === НАСТРОЙКИ СЕРВИСОВ И КАРТИНОК ===
 const servicesData = [
     { name: 'ChatGPT', img: 'static/img/ChatGPT.png' },
+    { name: 'Roblox', img: 'static/img/Roblox.png' },
     { name: 'CapCut', img: 'static/img/CapCut.png' },
     { name: 'YouTube', img: 'static/img/YouTube.png' },
     { name: 'Instagram', img: 'static/img/Instagram.png' },

@@ -6,7 +6,9 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signOut,
-  onAuthStateChanged
+  onAuthStateChanged,
+  setPersistence,
+  browserLocalPersistence
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 
 import {
@@ -20,21 +22,25 @@ import {
 
 const ADMIN_EMAIL = "m462556532@gmail.com";
 
-// UI: profile modal open/close
+// profile modal open/close
 const profileFab = document.getElementById("profileFab");
 const profileOverlay = document.getElementById("profileOverlay");
 const profileModal = document.getElementById("profileModal");
 const profileClose = document.getElementById("profileClose");
 
+// views
+const loadingView = document.getElementById("loadingView");
 const authView = document.getElementById("authView");
 const accountView = document.getElementById("accountView");
 
+// avatar ui
 const avatarBadge = document.getElementById("avatarBadge");
 const avatarBig = document.getElementById("avatarBig");
 const avatarInput = document.getElementById("avatarInput");
 const saveAvatarBtn = document.getElementById("saveAvatarBtn");
 const emojiGrid = document.getElementById("emojiGrid");
 
+// profile info
 const profileEmail = document.getElementById("profileEmail");
 
 // auth inputs/buttons
@@ -44,19 +50,38 @@ const googleLoginBtn = document.getElementById("googleLoginBtn");
 const emailRegisterBtn = document.getElementById("emailRegisterBtn");
 const emailLoginBtn = document.getElementById("emailLoginBtn");
 const logoutBtn = document.getElementById("logoutBtn");
+const authError = document.getElementById("authError");
 
-// admin panel show/hide
+// admin
 const adminPanel = document.getElementById("adminPanel");
 
 let unsubUserDoc = null;
 
+function showAuthError(text) {
+  if (!authError) return;
+  if (!text) {
+    authError.style.display = "none";
+    authError.textContent = "";
+    return;
+  }
+  authError.style.display = "block";
+  authError.textContent = text;
+}
+
+function setViews(mode) {
+  // mode: "loading" | "out" | "in"
+  if (loadingView) loadingView.style.display = (mode === "loading") ? "block" : "none";
+  if (authView) authView.style.display = (mode === "out") ? "block" : "none";
+  if (accountView) accountView.style.display = (mode === "in") ? "block" : "none";
+}
+
 function openProfile() {
-  profileOverlay.classList.add("show");
-  profileModal.classList.add("show");
+  profileOverlay?.classList.add("show");
+  profileModal?.classList.add("show");
 }
 function closeProfile() {
-  profileOverlay.classList.remove("show");
-  profileModal.classList.remove("show");
+  profileOverlay?.classList.remove("show");
+  profileModal?.classList.remove("show");
 }
 
 profileFab?.addEventListener("click", openProfile);
@@ -76,6 +101,7 @@ async function ensureUserDoc(uid, email) {
   if (!snap.exists()) {
     await setDoc(ref, {
       email: email ?? null,
+      emailLower: (email ?? "").toLowerCase(),
       balance: 0,
       avatarEmoji: "🙂",
       createdAt: serverTimestamp(),
@@ -91,40 +117,50 @@ function humanAuthError(e) {
   if (code === "auth/weak-password") return "Пароль минимум 6 символов";
   if (code === "auth/wrong-password") return "Неверный пароль";
   if (code === "auth/user-not-found") return "Пользователь не найден";
+  if (code === "auth/too-many-requests") return "Слишком много попыток. Попробуй позже";
   if (code === "auth/popup-closed-by-user") return "Окно входа закрыто";
   return "Ошибка авторизации";
 }
 
-// Auth actions
+// ✅ фикс сохранения входа (чтобы после перезагрузки не слетало)
+setViews("loading");
+setPersistence(auth, browserLocalPersistence).catch(() => {
+  // даже если не получилось — не блокируем
+});
+
+// auth actions
 googleLoginBtn?.addEventListener("click", async () => {
   try {
+    showAuthError("");
     const provider = new GoogleAuthProvider();
     const res = await signInWithPopup(auth, provider);
     await ensureUserDoc(res.user.uid, res.user.email);
   } catch (e) {
-    alert(humanAuthError(e));
+    showAuthError(humanAuthError(e));
   }
 });
 
 emailRegisterBtn?.addEventListener("click", async () => {
   try {
-    const email = emailEl.value.trim();
-    const pass = passEl.value;
+    showAuthError("");
+    const email = (emailEl?.value || "").trim();
+    const pass = passEl?.value || "";
     const res = await createUserWithEmailAndPassword(auth, email, pass);
     await ensureUserDoc(res.user.uid, res.user.email);
   } catch (e) {
-    alert(humanAuthError(e)); // "занято"
+    showAuthError(humanAuthError(e));
   }
 });
 
 emailLoginBtn?.addEventListener("click", async () => {
   try {
-    const email = emailEl.value.trim();
-    const pass = passEl.value;
+    showAuthError("");
+    const email = (emailEl?.value || "").trim();
+    const pass = passEl?.value || "";
     const res = await signInWithEmailAndPassword(auth, email, pass);
     await ensureUserDoc(res.user.uid, res.user.email);
   } catch (e) {
-    alert(humanAuthError(e));
+    showAuthError(humanAuthError(e));
   }
 });
 
@@ -132,7 +168,7 @@ logoutBtn?.addEventListener("click", async () => {
   await signOut(auth);
 });
 
-// Emoji pick
+// emoji pick
 emojiGrid?.addEventListener("click", (e) => {
   const btn = e.target.closest("[data-emoji]");
   if (!btn) return;
@@ -140,7 +176,7 @@ emojiGrid?.addEventListener("click", (e) => {
   if (avatarInput) avatarInput.value = emo;
 });
 
-// Save avatar
+// save avatar
 saveAvatarBtn?.addEventListener("click", async () => {
   const user = auth.currentUser;
   if (!user) return;
@@ -154,25 +190,21 @@ saveAvatarBtn?.addEventListener("click", async () => {
   });
 });
 
+// ✅ главный переключатель UI
 onAuthStateChanged(auth, (user) => {
   if (unsubUserDoc) { unsubUserDoc(); unsubUserDoc = null; }
 
   if (!user) {
-    authView.style.display = "block";
-    accountView.style.display = "none";
+    setViews("out");
     if (adminPanel) adminPanel.style.display = "none";
-    profileEmail.textContent = "—";
+    if (profileEmail) profileEmail.textContent = "—";
     setAvatar("👤");
     return;
   }
 
-  authView.style.display = "none";
-  accountView.style.display = "block";
+  setViews("in");
 
-  // email показываем только в профиле
-  profileEmail.textContent = user.email || "—";
-
-  // админ панель — только админу
+  if (profileEmail) profileEmail.textContent = user.email || "—";
   const isAdmin = (user.email || "").toLowerCase() === ADMIN_EMAIL.toLowerCase();
   if (adminPanel) adminPanel.style.display = isAdmin ? "block" : "none";
 

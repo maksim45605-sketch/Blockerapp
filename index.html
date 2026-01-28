@@ -11,9 +11,8 @@
 
   <link rel="stylesheet" href="static/css/styles.css" />
 </head>
-
 <body>
-  <!-- Header -->
+
   <header class="topbar">
     <div class="header-inner">
       <img src="static/img/RKN.png" alt="Логотип РКН" class="rkn-logo">
@@ -24,8 +23,8 @@
     </div>
   </header>
 
-  <!-- Profile button (top-right) -->
-  <button class="profile-fab" id="profileFab" type="button" aria-label="Профиль">
+  <!-- Профиль -->
+  <button class="profile-fab" id="profileFab" type="button">
     <div class="avatar-badge" id="avatarBadge">👤</div>
     <div class="fab-text">
       <div class="fab-title">Профиль</div>
@@ -33,45 +32,15 @@
     </div>
   </button>
 
-  <!-- Profile overlay/modal -->
   <div class="profile-overlay" id="profileOverlay"></div>
 
   <div class="profile-modal" id="profileModal">
     <div class="pm-head">
-      <div class="pm-title">Аккаунт</div>
+      <div class="pm-title">Профиль</div>
       <button class="pm-close" id="profileClose" type="button">✕</button>
     </div>
 
-    <!-- LOADING view (чтобы не мигало "регистрация") -->
-    <div id="loadingView" class="pm-card">
-      <div class="pm-label">Проверяем вход...</div>
-    </div>
-
-    <!-- LOGGED OUT view -->
-    <div id="authView" class="pm-card" style="display:none;">
-      <div class="pm-label">Войти, чтобы сохранять валюту</div>
-
-      <div class="row" style="margin-top:8px;">
-        <button class="pm-btn primary" id="googleLoginBtn" type="button">Войти через Google</button>
-      </div>
-
-      <div class="pm-label" style="margin-top:12px;">Email + пароль</div>
-      <div class="row">
-        <input class="pm-input" id="email" type="email" placeholder="Email" autocomplete="email">
-        <input class="pm-input" id="password" type="password" placeholder="Пароль" autocomplete="current-password">
-      </div>
-
-      <div class="row" style="margin-top:8px;">
-        <button class="pm-btn" id="emailRegisterBtn" type="button">Регистрация</button>
-        <button class="pm-btn" id="emailLoginBtn" type="button">Вход</button>
-      </div>
-
-      <div class="hint">Если email уже используется — будет «занято».</div>
-      <div class="error" id="authError" style="display:none;"></div>
-    </div>
-
-    <!-- LOGGED IN view -->
-    <div id="accountView" class="pm-card" style="display:none;">
+    <div class="pm-card">
       <div class="row" style="align-items:center;">
         <div style="display:flex;gap:10px;align-items:center;">
           <div class="avatar-badge big" id="avatarBig">🙂</div>
@@ -79,9 +48,6 @@
             <div class="pm-label">Баланс</div>
             <div class="pm-value"><span id="balanceLabel">0 ₽</span></div>
           </div>
-        </div>
-        <div style="display:flex;justify-content:flex-end;gap:8px;">
-          <button class="pm-btn" id="logoutBtn" type="button">Выйти</button>
         </div>
       </div>
 
@@ -92,7 +58,6 @@
       </div>
 
       <div class="emoji-grid" id="emojiGrid">
-        <!-- лица -->
         <button class="emoji-btn" type="button" data-emoji="😀">😀</button>
         <button class="emoji-btn" type="button" data-emoji="😃">😃</button>
         <button class="emoji-btn" type="button" data-emoji="😄">😄</button>
@@ -109,16 +74,6 @@
         <button class="emoji-btn" type="button" data-emoji="🤡">🤡</button>
         <button class="emoji-btn" type="button" data-emoji="😈">😈</button>
         <button class="emoji-btn" type="button" data-emoji="👽">👽</button>
-
-        <!-- персонажи -->
-        <button class="emoji-btn" type="button" data-emoji="🕵️">🕵️</button>
-        <button class="emoji-btn" type="button" data-emoji="🥷">🥷</button>
-        <button class="emoji-btn" type="button" data-emoji="🧑‍🚀">🧑‍🚀</button>
-        <button class="emoji-btn" type="button" data-emoji="🧙‍♂️">🧙‍♂️</button>
-        <button class="emoji-btn" type="button" data-emoji="🧛">🧛</button>
-        <button class="emoji-btn" type="button" data-emoji="🧟">🧟</button>
-
-        <!-- животные -->
         <button class="emoji-btn" type="button" data-emoji="🐶">🐶</button>
         <button class="emoji-btn" type="button" data-emoji="🐱">🐱</button>
         <button class="emoji-btn" type="button" data-emoji="🦊">🦊</button>
@@ -128,47 +83,17 @@
         <button class="emoji-btn" type="button" data-emoji="🦄">🦄</button>
         <button class="emoji-btn" type="button" data-emoji="🐧">🐧</button>
         <button class="emoji-btn" type="button" data-emoji="🦖">🦖</button>
-
-        <!-- штуки -->
         <button class="emoji-btn" type="button" data-emoji="🔥">🔥</button>
         <button class="emoji-btn" type="button" data-emoji="⚡">⚡</button>
         <button class="emoji-btn" type="button" data-emoji="💎">💎</button>
         <button class="emoji-btn" type="button" data-emoji="🎲">🎲</button>
-        <button class="emoji-btn" type="button" data-emoji="🧠">🧠</button>
-        <button class="emoji-btn" type="button" data-emoji="💼">💼</button>
         <button class="emoji-btn" type="button" data-emoji="👑">👑</button>
         <button class="emoji-btn" type="button" data-emoji="🏴‍☠️">🏴‍☠️</button>
-      </div>
-
-      <div class="pm-card" style="margin-top:10px;">
-        <div class="pm-label">Профиль (email виден только тут)</div>
-        <div class="pm-value" id="profileEmail">—</div>
-      </div>
-
-      <!-- Admin panel (скрыт для всех кроме админа) -->
-      <div class="pm-card" id="adminPanel" style="display:none;margin-top:10px;">
-        <div class="pm-label">Админ-панель</div>
-
-        <div class="row">
-          <input class="pm-input" id="adminSelfAmount" type="number" min="1" step="1" placeholder="Пополнить себе (₽)">
-          <button class="pm-btn primary" id="adminSelfTopUpBtn" type="button">Пополнить</button>
-        </div>
-
-        <div class="row" style="margin-top:10px;">
-          <input class="pm-input" id="adminToEmail" type="email" placeholder="Email получателя">
-          <input class="pm-input" id="adminToAmount" type="number" min="1" step="1" placeholder="Сумма (₽)">
-        </div>
-        <div class="row" style="margin-top:8px;">
-          <button class="pm-btn primary" id="adminSendBtn" type="button">Отправить деньги по email</button>
-        </div>
-
-        <div class="hint">Видно только администратору.</div>
-        <div class="error" id="adminError" style="display:none;"></div>
       </div>
     </div>
   </div>
 
-  <!-- Main -->
+  <!-- Рулетка -->
   <main class="main">
     <h1 class="title">ЧТО ЗАПРЕТИМ СЕГОДНЯ?</h1>
 
@@ -180,7 +105,7 @@
     <button class="spin-btn" id="spinBtn">КРУТИТЬ</button>
   </main>
 
-  <!-- Roulette Modal -->
+  <!-- Модалка результата -->
   <div class="modal-overlay" id="modalOverlay">
     <div class="modal-window" id="modalWindow">
 
@@ -201,18 +126,13 @@
         <div class="salary" id="salaryAmount">0 ₽</div>
         <div class="salary-label">ваша зарплата на сегодня</div>
 
-        <!-- Кнопку забора денег скрипт перехватывает через addEventListener -->
-        <button class="result-btn btn-take">Забрать деньги</button>
+        <button class="result-btn btn-take" id="takeBtn">Забрать деньги</button>
         <button class="result-btn btn-again" onclick="resetRoulette()">Крутить ещё</button>
       </div>
 
     </div>
   </div>
 
-  <!-- Scripts -->
-  <script type="module" src="static/js/firebase-init.js"></script>
-  <script type="module" src="static/js/auth.js"></script>
-  <script type="module" src="static/js/wallet.js"></script>
-  <script type="module" src="static/js/script.js"></script>
+  <script src="static/js/script.js"></script>
 </body>
 </html>

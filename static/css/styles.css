@@ -70,6 +70,12 @@ body{
   border-top:18px solid rgba(255,90,90,.95);
   filter:drop-shadow(0 8px 18px rgba(0,0,0,.35));
   z-index:5;
+  animation:pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes pulse{
+  0%,100%{filter:drop-shadow(0 8px 18px rgba(0,0,0,.35))}
+  50%{filter:drop-shadow(0 10px 26px rgba(255,90,90,.25))}
 }
 
 .roulette-track{
@@ -105,9 +111,8 @@ body{
   cursor:pointer;box-shadow:0 14px 40px rgba(0,0,0,.35);
 }
 .spin-btn:hover{transform:translateY(-1px)}
-.spin-btn:disabled{opacity:.55;cursor:not-allowed;transform:none}
 
-/* roulette modal */
+/* modal */
 .modal-overlay{
   position:fixed;inset:0;display:none;
   align-items:center;justify-content:center;
@@ -164,9 +169,7 @@ body{
   cursor:pointer;
   min-width:180px;
   margin:6px;
-  transition:transform .12s ease,background .12s ease;
 }
-.result-btn:hover{transform:translateY(-1px);background:rgba(255,255,255,.10)}
 .btn-take{border-color:rgba(120,255,170,.35)}
 .btn-again{border-color:rgba(255,255,255,.14)}
 
@@ -256,7 +259,6 @@ body{
   cursor:pointer;
   font-weight:900;
 }
-.pm-btn:hover{background:rgba(255,255,255,.12)}
 .pm-btn.primary{
   background:linear-gradient(180deg,rgba(255,90,90,.32),rgba(255,90,90,.16));
   border-color:rgba(255,90,90,.35);
@@ -266,24 +268,9 @@ body{
   display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;
   max-height:220px;overflow:auto;padding-right:6px;
 }
-.emoji-grid::-webkit-scrollbar{width:8px}
-.emoji-grid::-webkit-scrollbar-thumb{background:rgba(255,255,255,.12);border-radius:8px}
-
 .emoji-btn{
   width:42px;height:42px;border-radius:14px;
   border:1px solid rgba(255,255,255,.14);
   background:rgba(0,0,0,.22);
   cursor:pointer;font-size:18px;
-  transition:transform .12s ease,background .12s ease;
-}
-.emoji-btn:hover{transform:translateY(-1px);background:rgba(255,255,255,.08)}
-
-.hint{font-size:12px;opacity:.75;margin-top:8px;line-height:1.25}
-
-.error{
-  margin-top:10px;padding:10px 12px;border-radius:12px;
-  border:1px solid rgba(255,90,90,.30);
-  background:rgba(255,90,90,.10);
-  color:rgba(255,255,255,.92);
-  font-size:12px;
 }

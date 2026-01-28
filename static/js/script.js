@@ -1,5 +1,83 @@
-import { addBalance } from "./wallet.js";
+// ====== LOCAL STORAGE BALANCE + AVATAR ======
+const LS_BAL = "rkn_balance";
+const LS_AVA = "rkn_avatar";
 
+function getBalance() {
+  return Math.max(0, parseInt(localStorage.getItem(LS_BAL) || "0", 10) || 0);
+}
+function setBalance(v) {
+  localStorage.setItem(LS_BAL, String(Math.max(0, v | 0)));
+  renderBalance();
+}
+function addBalance(amount) {
+  const n = Math.max(0, Math.floor(Number(amount) || 0));
+  if (!n) return;
+  setBalance(getBalance() + n);
+}
+
+function getAvatar() {
+  return (localStorage.getItem(LS_AVA) || "👤").trim() || "👤";
+}
+function setAvatar(emo) {
+  const e = (emo || "").trim() || "👤";
+  localStorage.setItem(LS_AVA, e);
+  renderAvatar();
+}
+
+function renderBalance() {
+  const b = getBalance();
+  const txt = `${b.toLocaleString("ru-RU")} ₽`;
+  const mini = document.getElementById("balanceMini");
+  const label = document.getElementById("balanceLabel");
+  if (mini) mini.textContent = txt;
+  if (label) label.textContent = txt;
+}
+
+function renderAvatar() {
+  const a = getAvatar();
+  const b1 = document.getElementById("avatarBadge");
+  const b2 = document.getElementById("avatarBig");
+  if (b1) b1.textContent = a;
+  if (b2) b2.textContent = a;
+}
+
+// ====== PROFILE MODAL ======
+const profileFab = document.getElementById("profileFab");
+const profileOverlay = document.getElementById("profileOverlay");
+const profileModal = document.getElementById("profileModal");
+const profileClose = document.getElementById("profileClose");
+
+function openProfile() {
+  profileOverlay.classList.add("show");
+  profileModal.classList.add("show");
+}
+function closeProfile() {
+  profileOverlay.classList.remove("show");
+  profileModal.classList.remove("show");
+}
+profileFab?.addEventListener("click", openProfile);
+profileOverlay?.addEventListener("click", closeProfile);
+profileClose?.addEventListener("click", closeProfile);
+
+// emoji buttons
+document.getElementById("emojiGrid")?.addEventListener("click", (e) => {
+  const btn = e.target.closest("[data-emoji]");
+  if (!btn) return;
+  const emo = btn.getAttribute("data-emoji");
+  const input = document.getElementById("avatarInput");
+  if (input) input.value = emo;
+});
+
+document.getElementById("saveAvatarBtn")?.addEventListener("click", () => {
+  const input = document.getElementById("avatarInput");
+  setAvatar(input?.value || "👤");
+});
+
+// init render
+renderBalance();
+renderAvatar();
+
+// ====== ROULETTE ======
 const servicesData = [
   { name: 'ChatGPT', img: 'static/img/ChatGPT.png' },
   { name: 'Roblox', img: 'static/img/roblox.png' },
@@ -35,7 +113,7 @@ const actionStep = document.getElementById('actionStep');
 const resultStep = document.getElementById('resultStep');
 const statusText = document.getElementById('statusText');
 const salaryAmount = document.getElementById('salaryAmount');
-const takeBtn = document.querySelector('.btn-take');
+const takeBtn = document.getElementById("takeBtn");
 
 let isSpinning = false;
 let generatedItems = [];
@@ -59,7 +137,6 @@ function initRoulette() {
   }
   track.innerHTML = html;
 }
-
 initRoulette();
 
 spinBtn.addEventListener('click', () => {
@@ -98,62 +175,39 @@ function openModal(service) {
 
   lastSalary = 0;
   salaryAmount.textContent = '0 ₽';
-
-  if (takeBtn) {
-    takeBtn.disabled = false;
-    takeBtn.textContent = 'Забрать деньги';
-  }
+  takeBtn.disabled = false;
+  takeBtn.textContent = "Забрать деньги";
 }
 
 window.applyPunishment = function(type) {
   actionStep.style.display = 'none';
   resultStep.style.display = 'block';
-  modalWindow.classList.add('punished');
 
   statusText.textContent = type;
 
   const salary = Math.floor(Math.random() * (100 - 10 + 1) + 10) * 1000;
   lastSalary = salary;
+
   salaryAmount.textContent = salary.toLocaleString('ru-RU') + ' ₽';
 };
 
-async function takeMoney() {
-  if (!takeBtn) return;
-
+function takeMoney() {
   if (!lastSalary || lastSalary <= 0) {
-    takeBtn.textContent = 'Нечего зачислять';
-    setTimeout(() => (takeBtn.textContent = 'Забрать деньги'), 900);
+    takeBtn.textContent = "Нечего зачислять";
+    setTimeout(() => (takeBtn.textContent = "Забрать деньги"), 900);
     return;
   }
-
   takeBtn.disabled = true;
-  takeBtn.textContent = 'Зачисление...';
-
-  try {
-    await addBalance(lastSalary);
-    takeBtn.textContent = 'Зачислено ✅';
-    setTimeout(() => {
-      window.resetRoulette();
-      takeBtn.disabled = false;
-      takeBtn.textContent = 'Забрать деньги';
-    }, 700);
-  } catch (e) {
-    console.error("takeMoney error:", e);
-    takeBtn.textContent = 'Ошибка';
-    setTimeout(() => {
-      takeBtn.disabled = false;
-      takeBtn.textContent = 'Забрать деньги';
-    }, 1200);
-
-    if (e?.code === "NOT_AUTH" || e?.message === "NOT_AUTH") {
-      alert('Нужно войти в аккаунт, чтобы зачислить деньги.');
-    } else {
-      alert('Не удалось зачислить. Открой консоль (F12) и посмотри ошибку.');
-    }
-  }
+  takeBtn.textContent = "Зачислено ✅";
+  addBalance(lastSalary);
+  setTimeout(() => {
+    resetRoulette();
+    takeBtn.disabled = false;
+    takeBtn.textContent = "Забрать деньги";
+  }, 700);
 }
 
-takeBtn?.addEventListener('click', takeMoney);
+takeBtn.addEventListener("click", takeMoney);
 
 window.resetRoulette = function() {
   modalOverlay.classList.remove('active');

@@ -18,7 +18,9 @@ import {
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
-// UI
+const ADMIN_EMAIL = "m462556532@gmail.com";
+
+// UI: profile modal open/close
 const profileFab = document.getElementById("profileFab");
 const profileOverlay = document.getElementById("profileOverlay");
 const profileModal = document.getElementById("profileModal");
@@ -35,17 +37,19 @@ const emojiGrid = document.getElementById("emojiGrid");
 
 const profileEmail = document.getElementById("profileEmail");
 
+// auth inputs/buttons
 const emailEl = document.getElementById("email");
 const passEl = document.getElementById("password");
-
 const googleLoginBtn = document.getElementById("googleLoginBtn");
 const emailRegisterBtn = document.getElementById("emailRegisterBtn");
 const emailLoginBtn = document.getElementById("emailLoginBtn");
 const logoutBtn = document.getElementById("logoutBtn");
 
+// admin panel show/hide
+const adminPanel = document.getElementById("adminPanel");
+
 let unsubUserDoc = null;
 
-// helpers
 function openProfile() {
   profileOverlay.classList.add("show");
   profileModal.classList.add("show");
@@ -80,34 +84,55 @@ async function ensureUserDoc(uid, email) {
   }
 }
 
+function humanAuthError(e) {
+  const code = e?.code || "";
+  if (code === "auth/email-already-in-use") return "занято";
+  if (code === "auth/invalid-email") return "Некорректный email";
+  if (code === "auth/weak-password") return "Пароль минимум 6 символов";
+  if (code === "auth/wrong-password") return "Неверный пароль";
+  if (code === "auth/user-not-found") return "Пользователь не найден";
+  if (code === "auth/popup-closed-by-user") return "Окно входа закрыто";
+  return "Ошибка авторизации";
+}
+
 // Auth actions
 googleLoginBtn?.addEventListener("click", async () => {
-  const provider = new GoogleAuthProvider();
-  const res = await signInWithPopup(auth, provider);
-  await ensureUserDoc(res.user.uid, res.user.email);
+  try {
+    const provider = new GoogleAuthProvider();
+    const res = await signInWithPopup(auth, provider);
+    await ensureUserDoc(res.user.uid, res.user.email);
+  } catch (e) {
+    alert(humanAuthError(e));
+  }
 });
 
 emailRegisterBtn?.addEventListener("click", async () => {
-  const email = emailEl.value.trim();
-  const pass = passEl.value;
-
-  const res = await createUserWithEmailAndPassword(auth, email, pass);
-  await ensureUserDoc(res.user.uid, res.user.email);
+  try {
+    const email = emailEl.value.trim();
+    const pass = passEl.value;
+    const res = await createUserWithEmailAndPassword(auth, email, pass);
+    await ensureUserDoc(res.user.uid, res.user.email);
+  } catch (e) {
+    alert(humanAuthError(e)); // "занято"
+  }
 });
 
 emailLoginBtn?.addEventListener("click", async () => {
-  const email = emailEl.value.trim();
-  const pass = passEl.value;
-
-  const res = await signInWithEmailAndPassword(auth, email, pass);
-  await ensureUserDoc(res.user.uid, res.user.email);
+  try {
+    const email = emailEl.value.trim();
+    const pass = passEl.value;
+    const res = await signInWithEmailAndPassword(auth, email, pass);
+    await ensureUserDoc(res.user.uid, res.user.email);
+  } catch (e) {
+    alert(humanAuthError(e));
+  }
 });
 
 logoutBtn?.addEventListener("click", async () => {
   await signOut(auth);
 });
 
-// Emoji quick pick
+// Emoji pick
 emojiGrid?.addEventListener("click", (e) => {
   const btn = e.target.closest("[data-emoji]");
   if (!btn) return;
@@ -129,14 +154,13 @@ saveAvatarBtn?.addEventListener("click", async () => {
   });
 });
 
-// State
 onAuthStateChanged(auth, (user) => {
-  // cleanup old doc listener
   if (unsubUserDoc) { unsubUserDoc(); unsubUserDoc = null; }
 
   if (!user) {
     authView.style.display = "block";
     accountView.style.display = "none";
+    if (adminPanel) adminPanel.style.display = "none";
     profileEmail.textContent = "—";
     setAvatar("👤");
     return;
@@ -145,12 +169,14 @@ onAuthStateChanged(auth, (user) => {
   authView.style.display = "none";
   accountView.style.display = "block";
 
-  // Email показываем только тут (в профиле)
+  // email показываем только в профиле
   profileEmail.textContent = user.email || "—";
 
-  // listen user doc for avatar
-  const ref = doc(db, "users", user.uid);
-  unsubUserDoc = onSnapshot(ref, (snap) => {
+  // админ панель — только админу
+  const isAdmin = (user.email || "").toLowerCase() === ADMIN_EMAIL.toLowerCase();
+  if (adminPanel) adminPanel.style.display = isAdmin ? "block" : "none";
+
+  unsubUserDoc = onSnapshot(doc(db, "users", user.uid), (snap) => {
     const data = snap.data() || {};
     setAvatar(data.avatarEmoji || "🙂");
   });

@@ -22,28 +22,23 @@ import {
 
 const ADMIN_EMAIL = "m462556532@gmail.com";
 
-// profile modal open/close
 const profileFab = document.getElementById("profileFab");
 const profileOverlay = document.getElementById("profileOverlay");
 const profileModal = document.getElementById("profileModal");
 const profileClose = document.getElementById("profileClose");
 
-// views
 const loadingView = document.getElementById("loadingView");
 const authView = document.getElementById("authView");
 const accountView = document.getElementById("accountView");
 
-// avatar ui
 const avatarBadge = document.getElementById("avatarBadge");
 const avatarBig = document.getElementById("avatarBig");
 const avatarInput = document.getElementById("avatarInput");
 const saveAvatarBtn = document.getElementById("saveAvatarBtn");
 const emojiGrid = document.getElementById("emojiGrid");
 
-// profile info
 const profileEmail = document.getElementById("profileEmail");
 
-// auth inputs/buttons
 const emailEl = document.getElementById("email");
 const passEl = document.getElementById("password");
 const googleLoginBtn = document.getElementById("googleLoginBtn");
@@ -52,7 +47,6 @@ const emailLoginBtn = document.getElementById("emailLoginBtn");
 const logoutBtn = document.getElementById("logoutBtn");
 const authError = document.getElementById("authError");
 
-// admin
 const adminPanel = document.getElementById("adminPanel");
 
 let unsubUserDoc = null;
@@ -69,7 +63,6 @@ function showAuthError(text) {
 }
 
 function setViews(mode) {
-  // mode: "loading" | "out" | "in"
   if (loadingView) loadingView.style.display = (mode === "loading") ? "block" : "none";
   if (authView) authView.style.display = (mode === "out") ? "block" : "none";
   if (accountView) accountView.style.display = (mode === "in") ? "block" : "none";
@@ -97,7 +90,6 @@ function setAvatar(emoji) {
 async function ensureUserDoc(uid, email) {
   const ref = doc(db, "users", uid);
   const snap = await getDoc(ref);
-
   if (!snap.exists()) {
     await setDoc(ref, {
       email: email ?? null,
@@ -122,13 +114,9 @@ function humanAuthError(e) {
   return "Ошибка авторизации";
 }
 
-// ✅ фикс сохранения входа (чтобы после перезагрузки не слетало)
 setViews("loading");
-setPersistence(auth, browserLocalPersistence).catch(() => {
-  // даже если не получилось — не блокируем
-});
+setPersistence(auth, browserLocalPersistence).catch(() => {});
 
-// auth actions
 googleLoginBtn?.addEventListener("click", async () => {
   try {
     showAuthError("");
@@ -168,7 +156,6 @@ logoutBtn?.addEventListener("click", async () => {
   await signOut(auth);
 });
 
-// emoji pick
 emojiGrid?.addEventListener("click", (e) => {
   const btn = e.target.closest("[data-emoji]");
   if (!btn) return;
@@ -176,7 +163,6 @@ emojiGrid?.addEventListener("click", (e) => {
   if (avatarInput) avatarInput.value = emo;
 });
 
-// save avatar
 saveAvatarBtn?.addEventListener("click", async () => {
   const user = auth.currentUser;
   if (!user) return;
@@ -190,7 +176,6 @@ saveAvatarBtn?.addEventListener("click", async () => {
   });
 });
 
-// ✅ главный переключатель UI
 onAuthStateChanged(auth, (user) => {
   if (unsubUserDoc) { unsubUserDoc(); unsubUserDoc = null; }
 
@@ -203,8 +188,8 @@ onAuthStateChanged(auth, (user) => {
   }
 
   setViews("in");
-
   if (profileEmail) profileEmail.textContent = user.email || "—";
+
   const isAdmin = (user.email || "").toLowerCase() === ADMIN_EMAIL.toLowerCase();
   if (adminPanel) adminPanel.style.display = isAdmin ? "block" : "none";
 

@@ -1,6 +1,5 @@
 import { addBalance } from "./wallet.js";
 
-// === НАСТРОЙКИ СЕРВИСОВ И КАРТИНОК ===
 const servicesData = [
   { name: 'ChatGPT', img: 'static/img/ChatGPT.png' },
   { name: 'Roblox', img: 'static/img/roblox.png' },
@@ -30,24 +29,18 @@ const spinBtn = document.getElementById('spinBtn');
 const modalOverlay = document.getElementById('modalOverlay');
 const modalWindow = document.getElementById('modalWindow');
 
-// Modal Elements
 const modalImg = document.getElementById('modalImg');
 const modalTitle = document.getElementById('modalTitle');
 const actionStep = document.getElementById('actionStep');
 const resultStep = document.getElementById('resultStep');
 const statusText = document.getElementById('statusText');
 const salaryAmount = document.getElementById('salaryAmount');
-
-// Кнопка "Забрать деньги"
 const takeBtn = document.querySelector('.btn-take');
 
 let isSpinning = false;
 let generatedItems = [];
-
-// ✅ запоминаем зарплату числом, чтобы потом зачислить
 let lastSalary = 0;
 
-// Функция заполнения
 function initRoulette() {
   let html = '';
   generatedItems = [];
@@ -67,7 +60,6 @@ function initRoulette() {
   track.innerHTML = html;
 }
 
-// Первичная инициализация
 initRoulette();
 
 spinBtn.addEventListener('click', () => {
@@ -75,33 +67,24 @@ spinBtn.addEventListener('click', () => {
   isSpinning = true;
   spinBtn.disabled = true;
 
-  // 1) Сброс позиции
   track.style.transition = 'none';
   track.style.transform = 'translateX(0)';
 
-  // 2) Новая последовательность
   initRoulette();
-
-  // 3) Reflow
   track.offsetHeight;
 
-  // 4) Точка остановки
   const targetIndex = Math.floor(Math.random() * (90 - 70 + 1) + 70);
   const containerCenter = track.parentElement.offsetWidth / 2;
   const cardCenter = cardWidth / 2;
   const pixelOffset = (targetIndex * cardWidth) - containerCenter + cardCenter;
 
-  // 5) Старт анимации
   requestAnimationFrame(() => {
     track.style.transition = 'transform 5s cubic-bezier(0.15, 0.85, 0.15, 1)';
     track.style.transform = `translateX(-${pixelOffset}px)`;
   });
 
   const winner = generatedItems[targetIndex];
-
-  setTimeout(() => {
-    openModal(winner);
-  }, 5000);
+  setTimeout(() => openModal(winner), 5000);
 });
 
 function openModal(service) {
@@ -111,10 +94,8 @@ function openModal(service) {
   modalWindow.className = 'modal-window';
   actionStep.style.display = 'block';
   resultStep.style.display = 'none';
-
   modalOverlay.classList.add('active');
 
-  // ✅ сброс зарплаты
   lastSalary = 0;
   salaryAmount.textContent = '0 ₽';
 
@@ -124,7 +105,7 @@ function openModal(service) {
   }
 }
 
-window.applyPunishment = function (type) {
+window.applyPunishment = function(type) {
   actionStep.style.display = 'none';
   resultStep.style.display = 'block';
   modalWindow.classList.add('punished');
@@ -133,11 +114,9 @@ window.applyPunishment = function (type) {
 
   const salary = Math.floor(Math.random() * (100 - 10 + 1) + 10) * 1000;
   lastSalary = salary;
-
   salaryAmount.textContent = salary.toLocaleString('ru-RU') + ' ₽';
 };
 
-// ✅ Зачисление в Firebase (вместо location.reload)
 async function takeMoney() {
   if (!takeBtn) return;
 
@@ -151,8 +130,7 @@ async function takeMoney() {
   takeBtn.textContent = 'Зачисление...';
 
   try {
-    await addBalance(lastSalary); // 💰 пополнение
-
+    await addBalance(lastSalary);
     takeBtn.textContent = 'Зачислено ✅';
     setTimeout(() => {
       window.resetRoulette();
@@ -160,19 +138,24 @@ async function takeMoney() {
       takeBtn.textContent = 'Забрать деньги';
     }, 700);
   } catch (e) {
-    takeBtn.textContent = 'Войдите в аккаунт';
+    console.error("takeMoney error:", e);
+    takeBtn.textContent = 'Ошибка';
     setTimeout(() => {
       takeBtn.disabled = false;
       takeBtn.textContent = 'Забрать деньги';
     }, 1200);
 
-    alert('Нужно войти, чтобы зачислить деньги на аккаунт.');
+    if (e?.code === "NOT_AUTH" || e?.message === "NOT_AUTH") {
+      alert('Нужно войти в аккаунт, чтобы зачислить деньги.');
+    } else {
+      alert('Не удалось зачислить. Открой консоль (F12) и посмотри ошибку.');
+    }
   }
 }
 
 takeBtn?.addEventListener('click', takeMoney);
 
-window.resetRoulette = function () {
+window.resetRoulette = function() {
   modalOverlay.classList.remove('active');
   isSpinning = false;
   spinBtn.disabled = false;
